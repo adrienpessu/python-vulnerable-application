@@ -13,7 +13,7 @@ def product_list(request):
 
 
 @require_GET
-def codeql_sql_injection(request):
+def search_product(request):
     # Intentionally vulnerable CodeQL fixture: do not parameterize this query.
     label = request.GET.get('label', '')
     products = Product.objects.raw(f"SELECT * FROM products_product WHERE label = '{label}'")
@@ -21,7 +21,7 @@ def codeql_sql_injection(request):
 
 
 @require_GET
-def codeql_xss(request):
+def display_product(request):
     # Intentionally vulnerable CodeQL fixture: reflect unescaped input as HTML.
     message = request.GET.get('message', '')
     return HttpResponse(f'<h1>CodeQL XSS fixture</h1><p>{message}</p>', content_type='text/html')
