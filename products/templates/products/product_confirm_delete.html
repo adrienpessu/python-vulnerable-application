@@ -1,0 +1,12 @@
+{% extends 'products/base.html' %}
+{% block title %}Delete product{% endblock %}
+{% block content %}
+<section class="panel form-panel">
+    <h1>Delete product?</h1>
+    <p>Are you sure you want to delete <strong>{{ product.label }}</strong>? This also removes its photo and cannot be undone.</p>
+    <form method="post">
+        {% csrf_token %}
+        <div class="actions"><button class="delete" type="submit">Delete product</button><a href="{% url 'products:detail' product.pk %}">Cancel</a></div>
+    </form>
+</section>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends 'products/base.html' %}
+{% block content %}
+<h1>Products</h1>
+<p class="muted">Your products, all in one place.</p>
+<div class="grid">
+    {% for product in products %}
+    <article class="card">
+        {% if product.photo %}
+        <a href="{% url 'products:detail' product.pk %}"><img class="thumbnail" src="{% url 'products:photo' product.pk %}" alt="{{ product.label }}" loading="lazy"></a>
+        {% else %}<div class="placeholder">No photo</div>{% endif %}
+        <div class="card-body">
+            <h2><a href="{% url 'products:detail' product.pk %}">{{ product.label }}</a></h2>
+            <p class="price">{{ product.price|floatformat:2 }}</p>
+            <p>{{ product.description|truncatechars:140 }}</p>
+            <div class="actions"><a href="{% url 'products:update' product.pk %}">Edit</a><a class="danger" href="{% url 'products:delete' product.pk %}">Delete</a></div>
+        </div>
+    </article>
+    {% empty %}
+    <section class="empty"><h2>No products yet</h2><p>Add your first product to get started.</p><a class="button" href="{% url 'products:create' %}">Add product</a></section>
+    {% endfor %}
+</div>
+{% endblock %}

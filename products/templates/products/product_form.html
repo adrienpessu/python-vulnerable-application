@@ -1,0 +1,23 @@
+{% extends 'products/base.html' %}
+{% block title %}{% if product.pk %}Edit product{% else %}Add product{% endif %}{% endblock %}
+{% block content %}
+<section class="panel form-panel">
+    <h1>{% if product.pk %}Edit product{% else %}Add product{% endif %}</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+        <div class="field">
+            {{ field.label_tag }}
+            {{ field }}
+            {% if field.help_text %}<p class="help">{{ field.help_text }}</p>{% endif %}
+            {{ field.errors }}
+        </div>
+        {% endfor %}
+        <div class="actions">
+            <button type="submit">Save product</button>
+            <a href="{% if product.pk %}{% url 'products:detail' product.pk %}{% else %}{% url 'products:list' %}{% endif %}">Cancel</a>
+        </div>
+    </form>
+</section>
+{% endblock %}
