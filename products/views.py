@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.http import FileResponse, Http404
+from django.http import FileResponse, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_GET, require_http_methods
 
@@ -10,6 +10,21 @@ from .models import Product
 @require_GET
 def product_list(request):
     return render(request, 'products/product_list.html', {'products': Product.objects.all()})
+
+
+@require_GET
+def codeql_sql_injection(request):
+    # Intentionally vulnerable CodeQL fixture: do not parameterize this query.
+    label = request.GET.get('label', '')
+    products = Product.objects.raw(f"SELECT * FROM products_product WHERE label = '{label}'")
+    return render(request, 'products/product_list.html', {'products': products})
+
+
+@require_GET
+def codeql_xss(request):
+    # Intentionally vulnerable CodeQL fixture: reflect unescaped input as HTML.
+    message = request.GET.get('message', '')
+    return HttpResponse(f'<h1>CodeQL XSS fixture</h1><p>{message}</p>', content_type='text/html')
 
 
 @require_GET

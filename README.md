@@ -4,6 +4,25 @@ A simple Python/Django application with server-rendered HTML (no SPA).
 Create, list, view, edit and delete products with a label, description, price
 and optional photo. Products persist in SQLite; photos persist on disk.
 
+## Intentional CodeQL vulnerabilities
+
+This repository includes deliberately vulnerable endpoints for CodeQL testing.
+**Use only with disposable local data. Do not deploy or expose this application
+to untrusted networks.** The fixtures are always enabled and separate from the
+normal catalog endpoints:
+
+| Endpoint | Input | Intentional vulnerability |
+| --- | --- | --- |
+| `/codeql/sql-injection/` | `label` query parameter | SQL injection through string interpolation into a raw product query (CWE-89). |
+| `/codeql/xss/` | `message` query parameter | Reflected XSS through unescaped input in an HTML response (CWE-79). |
+
+For example, `label=' OR 1=1 -- ` bypasses the product label filter, and
+`message=<script>alert("CodeQL XSS fixture")</script>` is reflected as executable
+HTML. URL-encode these query parameter values when sending requests. Tests
+deliberately assert the vulnerable behavior so these fixtures remain detectable.
+The intended CodeQL query IDs are `py/sql-injection` and
+`py/reflective-xss`.
+
 ## Run locally
 
 Requires Python 3.10 or newer.
@@ -37,6 +56,10 @@ python manage.py test products
 ```
 
 ## Deployment notes
+
+This is an intentionally vulnerable local test application, not a production
+deployment candidate. The notes below describe catalog infrastructure only;
+they do not make the CodeQL fixtures safe.
 
 This is a local, single-user catalog, **without authentication**. Anyone with
 access can edit or delete products. Do not expose it to untrusted networks

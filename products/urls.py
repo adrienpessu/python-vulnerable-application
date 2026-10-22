@@ -6,6 +6,8 @@ app_name = 'products'
 
 urlpatterns = [
     path('', views.product_list, name='list'),
+    path('codeql/sql-injection/', views.codeql_sql_injection, name='codeql_sql_injection'),
+    path('codeql/xss/', views.codeql_xss, name='codeql_xss'),
     path('products/new/', views.product_form, name='create'),
     path('products/<int:pk>/', views.product_detail, name='detail'),
     path('products/<int:pk>/edit/', views.product_form, name='update'),
