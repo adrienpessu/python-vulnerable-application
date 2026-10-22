@@ -1,0 +1,17 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Products{% endblock %} · Product catalog</title>
+    <link rel="stylesheet" href="{% static 'products/style.css' %}">
+</head>
+<body>
+    <header><nav aria-label="Main navigation"><a class="brand" href="{% url 'products:list' %}">Product catalog</a><a class="button" href="{% url 'products:create' %}">Add product</a></nav></header>
+    <main>
+        {% for message in messages %}<p class="notice" role="status">{{ message }}</p>{% endfor %}
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

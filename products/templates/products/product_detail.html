@@ -1,0 +1,14 @@
+{% extends 'products/base.html' %}
+{% block title %}{{ product.label }}{% endblock %}
+{% block content %}
+<a href="{% url 'products:list' %}">← All products</a>
+<article class="panel detail">
+    {% if product.photo %}<img class="product-photo" src="{% url 'products:photo' product.pk %}" alt="{{ product.label }}">{% endif %}
+    <div>
+        <h1>{{ product.label }}</h1>
+        <p class="price">{{ product.price|floatformat:2 }}</p>
+        <div class="description">{{ product.description|linebreaksbr }}</div>
+        <div class="actions"><a class="button" href="{% url 'products:update' product.pk %}">Edit product</a><a class="danger" href="{% url 'products:delete' product.pk %}">Delete product</a></div>
+    </div>
+</article>
+{% endblock %}
