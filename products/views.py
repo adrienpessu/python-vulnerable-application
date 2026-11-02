@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.http import FileResponse, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.html import escape
 from django.views.decorators.http import require_GET, require_http_methods
 
 from .forms import ProductForm
@@ -24,8 +25,7 @@ def search_product(request):
 
 @require_GET
 def display_product(request):
-    # Intentionally vulnerable CodeQL fixture: reflect unescaped input as HTML.
-    message = request.GET.get('message', '')
+    message = escape(request.GET.get('message', ''))
     return HttpResponse(f'<h1>CodeQL XSS fixture</h1><p>{message}</p>', content_type='text/html')
 
 
