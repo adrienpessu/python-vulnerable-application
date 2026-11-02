@@ -1,6 +1,7 @@
 from django.contrib import messages
-from django.http import FileResponse, Http404
+from django.http import FileResponse, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.html import escape
 from django.views.decorators.http import require_GET, require_http_methods
 
 from .forms import ProductForm
@@ -10,6 +11,22 @@ from .models import Product
 @require_GET
 def product_list(request):
     return render(request, 'products/product_list.html', {'products': Product.objects.all()})
+
+
+@require_GET
+def search_product(request):
+    label = request.GET.get('label', '')
+    products = Product.objects.raw(
+        "SELECT * FROM products_product WHERE label = %s",
+        params=[label],
+    )
+    return render(request, 'products/product_list.html', {'products': products})
+
+
+@require_GET
+def display_product(request):
+    message = escape(request.GET.get('message', ''))
+    return HttpResponse(f'<h1>CodeQL XSS fixture</h1><p>{message}</p>', content_type='text/html')
 
 
 @require_GET
