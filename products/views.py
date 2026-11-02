@@ -14,9 +14,11 @@ def product_list(request):
 
 @require_GET
 def search_product(request):
-    # Intentionally vulnerable CodeQL fixture: do not parameterize this query.
     label = request.GET.get('label', '')
-    products = Product.objects.raw(f"SELECT * FROM products_product WHERE label = '{label}'")
+    products = Product.objects.raw(
+        "SELECT * FROM products_product WHERE label = %s",
+        params=[label],
+    )
     return render(request, 'products/product_list.html', {'products': products})
 
 
