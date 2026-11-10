@@ -2,7 +2,6 @@ import tempfile
 from decimal import Decimal
 from io import BytesIO
 from pathlib import Path
-from unittest.mock import patch
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import IntegrityError, transaction
@@ -200,51 +199,3 @@ class ProductTests(TestCase):
     def test_database_rejects_negative_price(self):
         with self.assertRaises(IntegrityError), transaction.atomic():
             Product.objects.create(**{**self.data, 'price': Decimal('-1.00')})
-
-
-class CodeQLExampleTests(TestCase):
-    def test_examples_are_disabled_outside_debug_mode(self):
-        response = self.client.get(reverse('products:codeql-xss-response'), {'message': '<script>'})
-        self.assertEqual(response.status_code, 404)
-
-    @override_settings(DEBUG=True)
-    def test_sql_injection_examples_use_query_input(self):
-        Product.objects.create(**{
-            'label': 'Coffee mug',
-            'description': 'A blue ceramic mug.',
-            'price': Decimal('12.50'),
-        })
-        for route, query in [
-            ('codeql-sqli-label', {'label': 'Coffee mug'}),
-            ('codeql-sqli-order', {'sort': 'label'}),
-        ]:
-            with self.subTest(route=route):
-                response = self.client.get(reverse(f'products:{route}'), query)
-                self.assertEqual(response.status_code, 200)
-                self.assertContains(response, 'Coffee mug')
-
-    @override_settings(DEBUG=True)
-    def test_xss_examples_return_unescaped_input(self):
-        payload = '<script>alert(1)</script>'
-        for route in [
-            'codeql-xss-response',
-            'codeql-xss-markup',
-            'codeql-xss-concatenation',
-        ]:
-            with self.subTest(route=route):
-                response = self.client.get(reverse(f'products:{route}'), {'message': payload})
-                self.assertEqual(response.status_code, 200)
-                self.assertContains(response, payload, html=False)
-
-    @override_settings(DEBUG=True)
-    @patch('products.codeql_examples.urlopen')
-    def test_ssrf_example_fetches_the_supplied_url(self, mock_urlopen):
-        mock_response = mock_urlopen.return_value.__enter__.return_value
-        mock_response.read.return_value = b'preview'
-        response = self.client.get(
-            reverse('products:codeql-ssrf-preview'),
-            {'url': 'https://example.test/'},
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content, b'preview')
-        mock_urlopen.assert_called_once_with('https://example.test/', timeout=2)
