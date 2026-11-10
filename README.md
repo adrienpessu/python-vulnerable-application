@@ -36,6 +36,14 @@ python manage.py check
 python manage.py test products
 ```
 
+## CodeQL test cases
+
+With `DJANGO_DEBUG=1`, the `/codeql-demo/` routes expose intentionally
+vulnerable examples for static-analysis testing: two SQL injection flows,
+three reflected XSS flows, and one SSRF flow. These routes return 404 when
+debug mode is off. They are demonstration-only; never enable debug mode or
+deploy these examples on a network that handles untrusted requests.
+
 ## Deployment notes
 
 This is a local, single-user catalog, **without authentication**. Anyone with
