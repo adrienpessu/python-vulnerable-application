@@ -199,3 +199,32 @@ class ProductTests(TestCase):
     def test_database_rejects_negative_price(self):
         with self.assertRaises(IntegrityError), transaction.atomic():
             Product.objects.create(**{**self.data, 'price': Decimal('-1.00')})
+
+
+class CodeQLFixtureTests(TestCase):
+    def test_sql_injection_fixture_filters_by_label(self):
+        Product.objects.create(label='Coffee mug', description='A mug.', price='12.50')
+        Product.objects.create(label='Tea cup', description='A cup.', price='8.00')
+        response = self.client.get(reverse('products:search_product'), {'label': 'Coffee mug'})
+        self.assertContains(response, 'Coffee mug')
+        self.assertNotContains(response, 'Tea cup')
+
+    def test_sql_injection_fixture_allows_filter_bypass(self):
+        Product.objects.create(label='Coffee mug', description='A mug.', price='12.50')
+        Product.objects.create(label='Tea cup', description='A cup.', price='8.00')
+        response = self.client.get(
+            reverse('products:search_product'), {'label': "' OR 1=1 -- "},
+        )
+        self.assertContains(response, 'Coffee mug')
+        self.assertContains(response, 'Tea cup')
+
+    def test_xss_fixture_reflects_unescaped_html(self):
+        payload = '<script>alert("CodeQL XSS fixture")</script>'
+        response = self.client.get(reverse('products:display_product'), {'message': payload})
+        self.assertEqual(response['Content-Type'], 'text/html')
+        self.assertContains(response, payload)
+
+    def test_fixtures_only_accept_get(self):
+        for route in ['search_product', 'display_product']:
+            with self.subTest(route=route):
+                self.assertEqual(self.client.post(reverse(f'products:{route}')).status_code, 405)
